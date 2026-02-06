@@ -21,29 +21,45 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem(THEME_KEY, theme);
 
     const btn = document.getElementById("themeToggle");
-    if (btn) {
-      btn.textContent = theme === "dark" ? "DARK" : "LIGHT";
-      btn.setAttribute("aria-pressed", theme === "light" ? "true" : "false");
-    }
-
-    console.log("[THEME] Tema aplicado:", theme);
+    if (btn) btn.textContent = theme === "dark" ? "DARK" : "LIGHT";
   }
 
   function toggleTheme() {
-    const current =
-      document.documentElement.getAttribute("data-theme") || "dark";
-    const next = current === "dark" ? "light" : "dark";
-    console.log("[THEME] Clique no botão. Trocando:", current, "→", next);
-    applyTheme(next);
+    const current = document.documentElement.getAttribute("data-theme") || "dark";
+    applyTheme(current === "dark" ? "light" : "dark");
   }
 
   applyTheme(getInitialTheme());
+  document.getElementById("themeToggle")?.addEventListener("click", toggleTheme);
 
-  const themeBtn = document.getElementById("themeToggle");
-  if (themeBtn) {
-    themeBtn.addEventListener("click", toggleTheme);
-  } else {
-    console.warn("[THEME] Botão #themeToggle não encontrado.");
+  /* ================= FONT (Títulos/Subtítulos) ================= */
+
+  const FONT_KEY = "ui.font.v1";
+  const fontSelect = document.getElementById("fontSelect");
+
+  function setUIFont(fontName) {
+    // define a fonte dos títulos/subtítulos via CSS variable
+    document.documentElement.style.setProperty(
+      "--ui-font",
+      `"${fontName}", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif`
+    );
+    localStorage.setItem(FONT_KEY, fontName);
+    console.log("[FONT] UI font:", fontName);
+  }
+
+  function getSavedUIFont() {
+    const saved = localStorage.getItem(FONT_KEY);
+    return saved || "Montserrat";
+  }
+
+  // aplica fonte inicial
+  const initialFont = getSavedUIFont();
+  setUIFont(initialFont);
+
+  // sincroniza select
+  if (fontSelect) {
+    fontSelect.value = initialFont;
+    fontSelect.addEventListener("change", () => setUIFont(fontSelect.value));
   }
 
   /* ================= APP ================= */
@@ -61,18 +77,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function loadProducts() {
     try {
-      const res = await fetch("./data/engates-rapidos.json", {
-        cache: "no-store",
-      });
+      const res = await fetch("./data/engates-rapidos.json", { cache: "no-store" });
       products = await res.json();
       console.log("[DATA] Produtos carregados:", products.length);
       render();
     } catch (e) {
-      console.error("[DATA] Erro ao carregar JSON", e);
-      if (grid) {
-        grid.innerHTML =
-          "<p style='color:var(--muted)'>Erro ao carregar produtos.</p>";
-      }
+      console.error("[DATA] Erro ao carregar ./data/engates-rapidos.json", e);
+      if (grid) grid.innerHTML = "<p style='color:var(--muted)'>Erro ao carregar produtos.</p>";
     }
   }
 
@@ -81,34 +92,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const q = (search?.value || "").toLowerCase().trim();
 
-    const list = products.filter((p) =>
+    const list = products.filter(p =>
       String(p?.name || "").toLowerCase().includes(q) ||
       String(p?.sku || "").toLowerCase().includes(q)
     );
 
-    grid.innerHTML = list
-      .map(
-        (p) => `
-        <div class="card" data-id="${p.id}">
-          <div class="card-title">${escapeHtml(p.name)}</div>
-          <div class="card-meta">
-            <span class="badge">SKU ${escapeHtml(p.sku || "-")}</span>
-            <span class="stock ok">0</span>
-          </div>
+    grid.innerHTML = list.map(p => `
+      <div class="card" data-id="${p.id}">
+        <div class="card-title">${escapeHtml(p.name)}</div>
+        <div class="card-meta">
+          <span class="badge">SKU ${escapeHtml(p.sku || "-")}</span>
+          <span class="stock ok">0</span>
         </div>
-      `
-      )
-      .join("");
+      </div>
+    `).join("");
 
-    grid.querySelectorAll(".card").forEach((card) => {
-      card.addEventListener("click", () =>
-        openSheet(card.dataset.id)
-      );
+    grid.querySelectorAll(".card").forEach(card => {
+      card.addEventListener("click", () => openSheet(card.dataset.id));
     });
   }
 
   function openSheet(id) {
-    const p = products.find((x) => String(x.id) === String(id));
+    const p = products.find(x => String(x.id) === String(id));
     if (!p || !sheet || !overlay) return;
 
     sheetTitle.textContent = p.name;
