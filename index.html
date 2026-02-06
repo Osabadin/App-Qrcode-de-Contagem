@@ -4,20 +4,46 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Contagem de Estoque</title>
-  <link rel="stylesheet" href="style.css?v=2" />
+
+  <!-- Google Fonts (títulos/subtítulos selecionáveis + Pacifico para produtos) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Pacifico&family=Amatic+SC:wght@400;700&family=Anton&family=Bebas+Neue&family=Exo+2:wght@300;400;500;600;700&family=Lato:wght@300;400;700;900&family=Montserrat:wght@300;400;500;600;700;800&family=Open+Sans:wght@300;400;600;700;800&family=Oswald:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="style.css?v=3" />
 </head>
 <body>
 
   <header class="topbar">
     <div class="topbar-row">
       <div class="titleblock">
-        <h1>Contagem de Estoque</h1>
-        <p class="muted">Área: Conexões e Engates Rápidos</p>
+        <h1 class="page-title">Contagem de Estoque</h1>
+        <p class="page-subtitle">Área: Conexões e Engates Rápidos</p>
       </div>
 
-      <button id="themeToggle" class="icon-btn" type="button" aria-label="Alternar tema">
-        Tema
-      </button>
+      <div class="controls">
+        <label class="select-wrap" title="Fonte dos títulos/subtítulos">
+          <span class="select-label">Fonte</span>
+          <select id="fontSelect" class="select">
+            <option value="Amatic SC">Amatic SC</option>
+            <option value="Anton">Anton</option>
+            <option value="Bebas Neue">Bebas Neue</option>
+            <option value="Exo 2">Exo 2</option>
+            <option value="Lato">Lato</option>
+            <option value="Montserrat" selected>Montserrat</option>
+            <option value="Open Sans">Open Sans</option>
+            <option value="Oswald">Oswald</option>
+            <option value="Playfair Display">Playfair Display</option>
+          </select>
+        </label>
+
+        <button id="themeToggle" class="icon-btn" type="button" aria-label="Alternar tema">
+          DARK
+        </button>
+      </div>
     </div>
 
     <input
@@ -39,7 +65,7 @@
     <div class="sheet-header">
       <div>
         <div class="sheet-title" id="sheetTitle">Produto</div>
-        <div class="sheet-subtitle" id="sheetSubtitle">ID</div>
+        <div class="sheet-subtitle" id="sheetSubtitle">SKU</div>
       </div>
       <button class="icon-btn" id="closeSheet" type="button">✕</button>
     </div>
@@ -51,6 +77,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=2"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>
