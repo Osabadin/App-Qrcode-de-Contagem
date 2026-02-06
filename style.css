@@ -1,17 +1,40 @@
+/* ================= THEME TOKENS ================= */
+
+/* DARK (default) */
 :root{
-  --bg:#0b0f14;
-  --card:#121a24;
-  --text:#e8eef6;
-  --muted:#a9b6c5;
-  --border:#223042;
-  --ok:#2ecc71;
-  --bad:#ff5c5c;
+  --bg:#0f1115;
+  --surface:#151a21;
+  --surface-2:#10141b;
+  --text:#e9eef6;
+  --muted:#a6b1c2;
+  --border:#273244;
+
+  --primary:#2f6bff;
+  --ok:#22c55e;
+  --bad:#ef4444;
+
+  --shadow:0 10px 30px rgba(0,0,0,.35);
 }
 
-/* Reset básico */
-*{
-  box-sizing:border-box;
+/* LIGHT */
+:root[data-theme="light"]{
+  --bg:#f6f8fc;
+  --surface:#ffffff;
+  --surface-2:#f1f4fa;
+  --text:#111827;
+  --muted:#5b6575;
+  --border:#e3e8f3;
+
+  --primary:#2f6bff;
+  --ok:#16a34a;
+  --bad:#dc2626;
+
+  --shadow:0 10px 30px rgba(17,24,39,.1);
 }
+
+/* ================= BASE ================= */
+
+*{ box-sizing:border-box; }
 
 body{
   margin:0;
@@ -25,14 +48,13 @@ body{
 .topbar{
   position:sticky;
   top:0;
+  z-index:10;
   display:flex;
-  flex-direction:column;          /* empilha título + busca */
+  flex-direction:column;
   gap:12px;
   padding:16px;
   border-bottom:1px solid var(--border);
-  background:rgba(11,15,20,.9);
-  backdrop-filter: blur(8px);
-  z-index:10;
+  background:var(--surface);
 }
 
 .topbar-row{
@@ -42,20 +64,27 @@ body{
   gap:12px;
 }
 
-.titleblock{
-  min-width:0;
-}
+.titleblock{ min-width:0; }
 
 h1{
   margin:0;
   font-size:18px;
-  white-space:nowrap;             /* título em uma linha */
+  white-space:nowrap;
 }
 
 .muted{
   margin:4px 0 0;
-  color:var(--muted);
   font-size:12px;
+  color:var(--muted);
+}
+
+.icon-btn{
+  background:var(--surface-2);
+  border:1px solid var(--border);
+  color:var(--text);
+  border-radius:10px;
+  padding:8px 10px;
+  cursor:pointer;
 }
 
 /* Busca */
@@ -65,46 +94,37 @@ h1{
   padding:10px 12px;
   border-radius:10px;
   border:1px solid var(--border);
-  background:#0f1620;
+  background:var(--surface-2);
   color:var(--text);
-  font-size:14px;
 }
 
-.search::placeholder{
-  color:var(--muted);
+.search:focus{
+  outline:2px solid color-mix(in srgb, var(--primary) 35%, transparent);
+  border-color:var(--primary);
 }
 
-/* ================= CONTEÚDO ================= */
+/* ================= LISTA ================= */
 
-.container{
-  padding:16px;
-}
+.container{ padding:16px; }
 
-/* Grid de produtos */
 .grid{
   display:grid;
   grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));
   gap:12px;
 }
 
-/* Card do produto */
 .card{
-  background:var(--card);
+  background:var(--surface);
   border:1px solid var(--border);
   border-radius:14px;
   padding:12px;
   cursor:pointer;
-  transition:transform .08s ease, border-color .08s ease;
-}
-
-.card:hover{
-  transform:translateY(-1px);
-  border-color:#2c3f57;
+  box-shadow:var(--shadow);
 }
 
 .card-title{
-  font-size:14px;
   margin:0 0 8px;
+  font-size:14px;
   line-height:1.3;
 }
 
@@ -115,31 +135,24 @@ h1{
   gap:10px;
 }
 
-/* Badge ID */
 .badge{
   font-size:12px;
   padding:6px 10px;
   border-radius:999px;
   border:1px solid var(--border);
+  background:var(--surface-2);
   color:var(--muted);
-  background:#0f1620;
 }
 
-/* Estoque */
 .stock{
-  font-weight:700;
   font-size:16px;
+  font-weight:700;
 }
 
-.stock.ok{
-  color:var(--ok);
-}
+.stock.ok{ color:var(--ok); }
+.stock.bad{ color:var(--bad); }
 
-.stock.bad{
-  color:var(--bad);
-}
-
-/* ================= MODAL / BALÃO ================= */
+/* ================= MODAL ================= */
 
 .overlay{
   position:fixed;
@@ -151,49 +164,30 @@ h1{
 .sheet{
   position:fixed;
   left:50%;
-  bottom:14px;
+  bottom:16px;
   transform:translateX(-50%);
   width:min(560px, calc(100vw - 24px));
-  background:var(--card);
+  background:var(--surface);
   border:1px solid var(--border);
   border-radius:16px;
   padding:14px;
+  box-shadow:var(--shadow);
   z-index:21;
 }
 
-.hidden{
-  display:none;
-}
+.hidden{ display:none; }
 
 .sheet-header{
   display:flex;
-  align-items:flex-start;
   justify-content:space-between;
   gap:10px;
   padding-bottom:10px;
   border-bottom:1px solid var(--border);
 }
 
-.sheet-title{
-  font-weight:800;
-}
+.sheet-title{ font-weight:700; }
+.sheet-subtitle{ font-size:12px; color:var(--muted); }
 
-.sheet-subtitle{
-  color:var(--muted);
-  font-size:12px;
-  margin-top:4px;
-}
-
-.icon-btn{
-  background:transparent;
-  border:1px solid var(--border);
-  color:var(--text);
-  border-radius:10px;
-  padding:8px 10px;
-  cursor:pointer;
-}
-
-/* Botões do balão */
 .sheet-actions{
   display:grid;
   gap:10px;
@@ -201,34 +195,23 @@ h1{
 }
 
 .btn{
-  width:100%;
   padding:12px;
   border-radius:12px;
   border:1px solid var(--border);
-  background:#0f1620;
+  background:var(--surface-2);
   color:var(--text);
   cursor:pointer;
-  font-size:14px;
 }
 
 .btn.danger{
-  border-color:#5a1f1f;
-  background:#1a0e0e;
-  color:#ffb3b3;
+  background:#fee2e2;
+  border-color:#fecaca;
+  color:#7f1d1d;
 }
 
 /* ================= MOBILE ================= */
 
 @media (max-width:480px){
-  h1{
-    font-size:16px;
-  }
-
-  .container{
-    padding:12px;
-  }
-
-  .grid{
-    gap:10px;
-  }
+  h1{ font-size:16px; }
+  .container{ padding:12px; }
 }
