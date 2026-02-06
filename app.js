@@ -1,4 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
+  console.log("[APP] DOM carregou. app.js está rodando.");
+
   /* ================= THEME ================= */
 
   const THEME_KEY = "ui.theme.v1";
@@ -19,12 +21,20 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem(THEME_KEY, theme);
 
     const btn = document.getElementById("themeToggle");
-    if (btn) btn.textContent = theme === "dark" ? "☾" : "☀";
+    if (btn) {
+      btn.textContent = theme === "dark" ? "DARK" : "LIGHT";
+      btn.setAttribute("aria-pressed", theme === "light" ? "true" : "false");
+    }
+
+    console.log("[THEME] Tema aplicado:", theme);
   }
 
   function toggleTheme() {
-    const current = document.documentElement.getAttribute("data-theme") || "dark";
-    applyTheme(current === "dark" ? "light" : "dark");
+    const current =
+      document.documentElement.getAttribute("data-theme") || "dark";
+    const next = current === "dark" ? "light" : "dark";
+    console.log("[THEME] Clique no botão. Trocando:", current, "→", next);
+    applyTheme(next);
   }
 
   // aplica tema inicial
@@ -32,10 +42,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // liga o botão
   const themeBtn = document.getElementById("themeToggle");
-  if (themeBtn) {
-    themeBtn.addEventListener("click", toggleTheme);
+  if (!themeBtn) {
+    console.warn("[THEME] Botão #themeToggle não encontrado.");
   } else {
-    console.warn("Botão #themeToggle não encontrado no HTML.");
+    themeBtn.addEventListener("click", toggleTheme);
+    console.log("[THEME] Listener do botão de tema ligado.");
   }
 
   /* ================= APP ================= */
@@ -55,9 +66,10 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const res = await fetch("./data/engates-rapidos.json", { cache: "no-store" });
       products = await res.json();
+      console.log("[DATA] Produtos carregados:", products.length);
       render();
     } catch (e) {
-      console.error("Erro ao carregar ./data/engates-rapidos.json", e);
+      console.error("[DATA] Erro ao carregar ./data/engates-rapidos.json", e);
       if (grid) grid.innerHTML = "<p style='color:var(--muted)'>Erro ao carregar produtos.</p>";
     }
   }
