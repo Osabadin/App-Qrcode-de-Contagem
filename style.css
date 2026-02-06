@@ -8,7 +8,11 @@
   --bad:#ff5c5c;
 }
 
-*{box-sizing:border-box}
+/* Reset básico */
+*{
+  box-sizing:border-box;
+}
+
 body{
   margin:0;
   font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
@@ -16,68 +20,134 @@ body{
   color:var(--text);
 }
 
+/* ================= HEADER ================= */
+
 .topbar{
-  position:sticky; top:0;
-  display:flex; gap:12px;
-  align-items:center; justify-content:space-between;
+  position:sticky;
+  top:0;
+  display:flex;
+  flex-direction:column;          /* empilha título + busca */
+  gap:12px;
   padding:16px;
   border-bottom:1px solid var(--border);
   background:rgba(11,15,20,.9);
   backdrop-filter: blur(8px);
+  z-index:10;
+}
+
+.topbar-row{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.titleblock{
+  min-width:0;
 }
 
 h1{
   margin:0;
   font-size:18px;
-  white-space: nowrap;      /* não quebra linha */
+  white-space:nowrap;             /* título em uma linha */
 }
 
+.muted{
+  margin:4px 0 0;
+  color:var(--muted);
+  font-size:12px;
+}
+
+/* Busca */
 .search{
-  width:min(380px, 45vw);
+  width:100%;
+  max-width:560px;
   padding:10px 12px;
   border-radius:10px;
   border:1px solid var(--border);
   background:#0f1620;
   color:var(--text);
+  font-size:14px;
 }
 
-.container{padding:16px}
+.search::placeholder{
+  color:var(--muted);
+}
+
+/* ================= CONTEÚDO ================= */
+
+.container{
+  padding:16px;
+}
+
+/* Grid de produtos */
 .grid{
   display:grid;
   grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));
   gap:12px;
 }
 
+/* Card do produto */
 .card{
   background:var(--card);
   border:1px solid var(--border);
   border-radius:14px;
   padding:12px;
   cursor:pointer;
-  transition:transform .08s ease;
+  transition:transform .08s ease, border-color .08s ease;
 }
-.card:hover{transform:translateY(-1px)}
 
-.card-title{font-size:14px; margin:0 0 6px}
-.card-meta{display:flex; justify-content:space-between; gap:10px; align-items:center}
+.card:hover{
+  transform:translateY(-1px);
+  border-color:#2c3f57;
+}
+
+.card-title{
+  font-size:14px;
+  margin:0 0 8px;
+  line-height:1.3;
+}
+
+.card-meta{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+}
+
+/* Badge ID */
 .badge{
   font-size:12px;
   padding:6px 10px;
   border-radius:999px;
   border:1px solid var(--border);
   color:var(--muted);
+  background:#0f1620;
 }
+
+/* Estoque */
 .stock{
   font-weight:700;
   font-size:16px;
 }
-.stock.ok{color:var(--ok)}
-.stock.bad{color:var(--bad)}
+
+.stock.ok{
+  color:var(--ok);
+}
+
+.stock.bad{
+  color:var(--bad);
+}
+
+/* ================= MODAL / BALÃO ================= */
 
 .overlay{
-  position:fixed; inset:0;
+  position:fixed;
+  inset:0;
   background:rgba(0,0,0,.55);
+  z-index:20;
 }
+
 .sheet{
   position:fixed;
   left:50%;
@@ -88,15 +158,31 @@ h1{
   border:1px solid var(--border);
   border-radius:16px;
   padding:14px;
+  z-index:21;
 }
-.hidden{display:none}
+
+.hidden{
+  display:none;
+}
 
 .sheet-header{
-  display:flex; align-items:flex-start; justify-content:space-between;
-  gap:10px; padding-bottom:10px; border-bottom:1px solid var(--border);
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+  padding-bottom:10px;
+  border-bottom:1px solid var(--border);
 }
-.sheet-title{font-weight:800}
-.sheet-subtitle{color:var(--muted); font-size:12px; margin-top:4px}
+
+.sheet-title{
+  font-weight:800;
+}
+
+.sheet-subtitle{
+  color:var(--muted);
+  font-size:12px;
+  margin-top:4px;
+}
 
 .icon-btn{
   background:transparent;
@@ -107,6 +193,7 @@ h1{
   cursor:pointer;
 }
 
+/* Botões do balão */
 .sheet-actions{
   display:grid;
   gap:10px;
@@ -121,10 +208,27 @@ h1{
   background:#0f1620;
   color:var(--text);
   cursor:pointer;
+  font-size:14px;
 }
+
 .btn.danger{
   border-color:#5a1f1f;
   background:#1a0e0e;
   color:#ffb3b3;
 }
 
+/* ================= MOBILE ================= */
+
+@media (max-width:480px){
+  h1{
+    font-size:16px;
+  }
+
+  .container{
+    padding:12px;
+  }
+
+  .grid{
+    gap:10px;
+  }
+}
