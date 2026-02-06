@@ -1,0 +1,933 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Contagem do Estoque</title>
+
+  <style>
+    :root{
+      --bg:#eef1f6;
+      --card:#ffffff;
+      --text:#1b2430;
+      --muted:#6b7686;
+      --line:#e6eaf0;
+      --blue:#1e6ad6;
+      --blue2:#2f7df0;
+      --shadow: 0 10px 24px rgba(14, 35, 66, .10);
+      --shadow2: 0 6px 14px rgba(14, 35, 66, .10);
+      --radius: 18px;
+      --radius2: 14px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: radial-gradient(1200px 700px at 50% -200px, #ffffff 0%, var(--bg) 48%, #e9edf5 100%);
+      color:var(--text);
+    }
+
+    .app{
+      max-width: 430px;
+      margin: 0 auto;
+      min-height: 100dvh;
+      padding: env(safe-area-inset-top) 14px env(safe-area-inset-bottom) 14px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    /* Top bar */
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding: 10px 8px;
+    }
+    .topbar .left, .topbar .right{display:flex; align-items:center; gap:10px;}
+    .iconbtn{
+      width:38px; height:38px;
+      border-radius: 12px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.75);
+      box-shadow: 0 4px 10px rgba(10,20,40,.05);
+      display:grid; place-items:center;
+      cursor:pointer;
+      user-select:none;
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px;
+      font-weight:700;
+      letter-spacing:.6px;
+      color:#2c5fb8;
+      text-transform:uppercase;
+      font-size:18px;
+    }
+    .chip{
+      height:30px;
+      padding: 0 10px;
+      border-radius: 10px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.85);
+      display:flex; align-items:center; gap:8px;
+      color:#4b5a6b;
+      font-weight:600;
+      font-size:13px;
+    }
+
+    /* Page containers */
+    .page{
+      display:none;
+      flex:1;
+    }
+    .page.active{display:block}
+
+    /* Cards */
+    .panel{
+      background: rgba(255,255,255,.7);
+      border:1px solid var(--line);
+      box-shadow: var(--shadow);
+      border-radius: 22px;
+      padding: 14px;
+    }
+
+    .sectionTitle{
+      font-size: 22px;
+      font-weight: 800;
+      margin: 4px 2px 12px 2px;
+    }
+
+    /* Home list */
+    .menuGroup{
+      border-radius: 16px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.85);
+      padding: 12px;
+      box-shadow: var(--shadow2);
+    }
+    .groupHeader{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      color: var(--blue);
+      font-weight: 800;
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+    .sublist{display:flex; flex-direction:column; gap:8px;}
+    .rowLink{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding: 10px 10px;
+      border-radius: 12px;
+      border:1px solid transparent;
+      color: var(--text);
+      background: rgba(240,244,251,.65);
+    }
+    .rowLink .left{
+      display:flex; align-items:center; gap:10px;
+      color: #2a3647;
+      font-weight: 600;
+    }
+    .dot{
+      width:7px; height:7px;
+      background:#9aa6b2;
+      border-radius: 50%;
+    }
+    .arrow{color:#7a8796; font-weight:900}
+
+    .ctaArea{
+      margin-top: 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding: 14px 14px;
+      border-radius: 16px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.9);
+      box-shadow: var(--shadow2);
+      cursor:pointer;
+      user-select:none;
+    }
+    .ctaArea .left{
+      display:flex; align-items:center; gap:12px;
+      font-weight: 800;
+      color:#263445;
+    }
+    .qrIcon{
+      width:32px;height:32px;
+      border-radius: 12px;
+      background: rgba(30,106,214,.12);
+      display:grid; place-items:center;
+      border:1px solid rgba(30,106,214,.20);
+    }
+
+    /* Areas page */
+    .titleRow{
+      display:flex; align-items:center; justify-content:space-between;
+      margin: 4px 2px 10px 2px;
+    }
+    .titleRow h1{
+      margin:0;
+      font-size: 22px;
+      font-weight: 900;
+      color:#2a3647;
+    }
+    .search{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.9);
+      box-shadow: var(--shadow2);
+      margin: 10px 0 12px 0;
+    }
+    .search input{
+      width:100%;
+      border:0;
+      outline:0;
+      background:transparent;
+      font-size:15px;
+      color:var(--text);
+    }
+
+    .areaList{display:flex; flex-direction:column; gap:10px;}
+    .areaCard{
+      background: rgba(255,255,255,.9);
+      border:1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: var(--shadow2);
+      padding: 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      cursor:pointer;
+    }
+    .areaCard .info{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-width: 0;
+    }
+    .areaCard .name{
+      font-weight: 800;
+      font-size: 16px;
+      color:#253345;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width: 270px;
+    }
+    .areaCard .meta{
+      font-size: 12px;
+      color:var(--muted);
+    }
+    .areaCard .meta b{color:var(--blue)}
+    .badgeSku{
+      width:52px;
+      border-radius: 14px;
+      border:1px solid var(--line);
+      background: rgba(245,248,255,.9);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      padding: 8px 0;
+      gap:2px;
+      color: var(--blue);
+      font-weight: 900;
+      box-shadow: 0 3px 10px rgba(10,20,40,.06);
+    }
+    .badgeSku small{
+      font-size: 10px;
+      font-weight: 800;
+      color:#6b7c93;
+      letter-spacing:.4px;
+    }
+
+    /* Contagem */
+    .crumb{
+      font-size: 12px;
+      color:#7a8796;
+      margin: 0 2px 6px 2px;
+    }
+    .areaHeader{
+      margin: 0 2px 12px 2px;
+    }
+    .areaHeader .areaName{
+      font-size: 24px;
+      font-weight: 900;
+      color:#2c5fb8;
+      margin:0;
+    }
+
+    .prodList{display:flex; flex-direction:column; gap:12px;}
+    .prodCard{
+      background: rgba(255,255,255,.92);
+      border:1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow2);
+      padding: 12px;
+      position:relative;
+      overflow:hidden;
+    }
+    .prodTop{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:10px;
+    }
+    .prodName{
+      font-weight: 900;
+      color: var(--blue);
+      text-decoration: underline;
+      cursor:pointer;
+      line-height: 1.2;
+    }
+    .skuTxt{
+      font-size: 12px;
+      color:#7a8796;
+      margin-left:6px;
+      font-weight: 800;
+      text-decoration:none;
+    }
+    .stats{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      color:#2a3647;
+      font-size: 15px;
+    }
+    .stats b{color:var(--blue2)}
+    .pill{
+      width:28px;height:28px;border-radius: 50%;
+      display:grid;place-items:center;
+      color:#fff;font-weight:900;font-size:14px;
+      border:2px solid rgba(255,255,255,.85);
+      box-shadow: 0 4px 12px rgba(10,20,40,.12);
+      flex:0 0 auto;
+      margin-top: 4px;
+    }
+    .pill.a{background:#1aa85b}
+    .pill.b{background:#1e6ad6}
+    .pill.c{background:#e53935}
+
+    .bottomActions{
+      margin-top: 10px;
+      display:flex;
+      justify-content:flex-end;
+      padding: 0 6px;
+    }
+    .addBtn{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      color: var(--blue2);
+      font-weight: 900;
+      background: transparent;
+      border:0;
+      cursor:pointer;
+      padding: 10px 12px;
+      border-radius: 14px;
+    }
+    .plus{
+      width:44px;height:44px;border-radius: 14px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.92);
+      display:grid;place-items:center;
+      box-shadow: var(--shadow2);
+    }
+
+    /* Bottom nav */
+    .bottomNav{
+      position: sticky;
+      bottom: 0;
+      background: rgba(255,255,255,.70);
+      border:1px solid var(--line);
+      box-shadow: var(--shadow);
+      border-radius: 22px;
+      padding: 10px;
+      display:flex;
+      justify-content:space-around;
+      gap:8px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .navItem{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      padding: 10px 10px;
+      border-radius: 16px;
+      color:#6b7686;
+      cursor:pointer;
+      user-select:none;
+      border:1px solid transparent;
+    }
+    .navItem.active{
+      color: var(--blue2);
+      background: rgba(47,125,240,.10);
+      border-color: rgba(47,125,240,.18);
+    }
+    .navItem span{font-size:12px;font-weight:800}
+
+    /* Tiny icons (inline) */
+    .svg{width:18px;height:18px;display:block}
+    .svg.big{width:22px;height:22px}
+    .hint{
+      font-size: 12px;
+      color:#7a8796;
+      padding: 8px 2px 0 2px;
+    }
+
+    /* Modal (incluir produto) */
+    .modalBack{
+      position:fixed;
+      inset:0;
+      background: rgba(10,20,40,.35);
+      display:none;
+      align-items:flex-end;
+      justify-content:center;
+      padding: 16px;
+      z-index: 50;
+    }
+    .modalBack.show{display:flex}
+    .modal{
+      width:100%;
+      max-width:430px;
+      background: rgba(255,255,255,.96);
+      border:1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: 14px;
+    }
+    .modal h3{
+      margin:4px 2px 10px 2px;
+      font-size: 18px;
+      font-weight: 900;
+      color:#2a3647;
+    }
+    .field{
+      display:flex; flex-direction:column; gap:8px;
+      margin-bottom: 10px;
+    }
+    .field label{font-size:12px;color:#7a8796;font-weight:800}
+    .field input{
+      height:44px;
+      border-radius: 14px;
+      border:1px solid var(--line);
+      padding: 0 12px;
+      font-size: 15px;
+      outline:0;
+      background: rgba(245,248,255,.8);
+    }
+    .modalActions{
+      display:flex; gap:10px;
+      justify-content:flex-end;
+      margin-top: 10px;
+    }
+    .btn{
+      height:42px;
+      padding: 0 14px;
+      border-radius: 14px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.9);
+      font-weight: 900;
+      cursor:pointer;
+    }
+    .btn.primary{
+      background: rgba(47,125,240,.12);
+      border-color: rgba(47,125,240,.25);
+      color: var(--blue2);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="left">
+        <button class="iconbtn" id="btnMenu" title="Menu">
+          <svg class="svg big" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+
+        <div class="brand" id="brandTitle">CONTAGEM DO ESTOQUE</div>
+      </div>
+
+      <div class="right">
+        <div class="chip" title="Área atual">
+          <svg class="svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 20s7-4.4 7-10a7 7 0 0 0-14 0c0 5.6 7 10 7 10z"/>
+            <circle cx="12" cy="10" r="2.5"/>
+          </svg>
+          <span id="chipArea">A</span>
+        </div>
+
+        <button class="iconbtn" id="btnUser" title="Usuário">
+          <svg class="svg big" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21a8 8 0 0 0-16 0"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- PAGE: HOME -->
+    <div class="page active" id="page-home">
+      <div class="panel">
+        <div class="sectionTitle">Home</div>
+
+        <div class="menuGroup">
+          <div class="groupHeader">
+            <span>Insumos</span>
+            <span class="arrow">▾</span>
+          </div>
+
+          <div class="sublist">
+            <div class="rowLink">
+              <div class="left"><span class="dot"></span> Maltes</div>
+              <div class="arrow">›</div>
+            </div>
+            <div class="rowLink">
+              <div class="left"><span class="dot"></span> Lúpulos</div>
+              <div class="arrow">›</div>
+            </div>
+            <div class="rowLink">
+              <div class="left"><span class="dot"></span> Fermentos</div>
+              <div class="arrow">›</div>
+            </div>
+            <div class="rowLink">
+              <div class="left"><span class="dot"></span> Adjuntos</div>
+              <div class="arrow">›</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="rowLink" style="margin-top:10px;">
+          <div class="left" style="color:var(--blue);font-weight:900;">Equipamentos</div>
+          <div class="arrow">›</div>
+        </div>
+        <div class="rowLink">
+          <div class="left">Químicos</div>
+          <div class="arrow">›</div>
+        </div>
+        <div class="rowLink">
+          <div class="left">Growhouse</div>
+          <div class="arrow">›</div>
+        </div>
+        <div class="rowLink">
+          <div class="left">Outros itens</div>
+          <div class="arrow">›</div>
+        </div>
+
+        <div class="ctaArea" id="goAreas">
+          <div class="left">
+            <div class="qrIcon">
+              <svg class="svg big" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4z"/>
+                <path d="M14 14h2v2h-2zM18 14h2v6h-6v-2h4z"/>
+              </svg>
+            </div>
+            <span>Área QR</span>
+          </div>
+          <div class="arrow">›</div>
+        </div>
+
+        <div class="hint">Dica: abra um QR com <b>?area_id=A01</b> para ir direto para a contagem.</div>
+      </div>
+    </div>
+
+    <!-- PAGE: ÁREAS -->
+    <div class="page" id="page-areas">
+      <div class="panel">
+        <div class="titleRow">
+          <div class="left" style="display:flex;align-items:center;gap:10px;">
+            <button class="iconbtn" id="backFromAreas" title="Voltar">
+              <svg class="svg big" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 18l-6-6 6-6"/>
+              </svg>
+            </button>
+            <h1>Áreas</h1>
+          </div>
+
+          <div class="right" style="display:flex;gap:10px;">
+            <div class="chip" title="Ajuste de fonte (placeholder)">
+              <span style="font-weight:900;">A</span><span style="font-size:12px;">a</span>
+            </div>
+            <button class="iconbtn" id="btnTheme" title="Tema (placeholder)">
+              <svg class="svg big" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 1 0 9.8 9.8z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="search">
+          <svg class="svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="7"/>
+            <path d="M20 20l-3.2-3.2"/>
+          </svg>
+          <input id="areaSearch" placeholder="Buscar área..." />
+        </div>
+
+        <div class="areaList" id="areaList"></div>
+      </div>
+    </div>
+
+    <!-- PAGE: CONTAGEM -->
+    <div class="page" id="page-contagem">
+      <div class="panel">
+        <div class="crumb">Áreas QR</div>
+        <div class="areaHeader">
+          <p class="areaName" id="areaTitle" style="margin:0;font-size:26px;font-weight:900;color:#2c5fb8;">—</p>
+        </div>
+
+        <div class="prodList" id="prodList"></div>
+
+        <div class="bottomActions">
+          <button class="addBtn" id="btnAdd">
+            <div class="plus">
+              <svg class="svg big" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 5v14M5 12h14"/>
+              </svg>
+            </div>
+            <span>Incluir produto</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <div class="bottomNav">
+      <div class="navItem active" id="navHome">
+        <svg class="svg big" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 11l9-8 9 8v10a2 2 0 0 1-2 2h-4v-7H9v7H5a2 2 0 0 1-2-2z"/>
+        </svg>
+        <span>Home</span>
+      </div>
+      <div class="navItem" id="navAreas">
+        <svg class="svg big" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 6h16M4 12h10M4 18h16"/>
+        </svg>
+        <span>Áreas</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MODAL -->
+  <div class="modalBack" id="modalBack">
+    <div class="modal">
+      <h3>Incluir produto</h3>
+
+      <div class="field">
+        <label>Nome do produto</label>
+        <input id="mNome" placeholder="Ex: União anteparo" />
+      </div>
+      <div class="field">
+        <label>SKU (visual)</label>
+        <input id="mSku" placeholder="Ex: 1525" />
+      </div>
+      <div class="field">
+        <label>ID Tiny (obrigatório p/ consulta)</label>
+        <input id="mTinyId" placeholder="Ex: 123456789" inputmode="numeric" />
+      </div>
+
+      <div class="modalActions">
+        <button class="btn" id="mCancelar">Cancelar</button>
+        <button class="btn primary" id="mSalvar">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /*************
+     * CONFIG
+     *************/
+    // Depois você troca isso para a URL do seu Worker:
+    // ex: https://api-estoque.seudominio.workers.dev
+    const API_BASE = ""; // "" => modo mock (para layout)
+
+    /*************
+     * STATE
+     *************/
+    const state = {
+      area_id: "",
+      area_nome: "",
+      areas: [],
+      produtos: []
+    };
+
+    /*************
+     * ROUTER / PAGES
+     *************/
+    const pages = {
+      home: document.getElementById("page-home"),
+      areas: document.getElementById("page-areas"),
+      contagem: document.getElementById("page-contagem"),
+    };
+
+    function showPage(name){
+      Object.values(pages).forEach(p => p.classList.remove("active"));
+      pages[name].classList.add("active");
+
+      // bottom nav state
+      document.getElementById("navHome").classList.toggle("active", name === "home");
+      document.getElementById("navAreas").classList.toggle("active", name === "areas");
+    }
+
+    function setAreaChip(text){
+      document.getElementById("chipArea").textContent = text || "A";
+    }
+
+    /*************
+     * MOCK DATA (para já testar layout)
+     *************/
+    const mockAreas = [
+      { area_id:"A01", nome:"Maltes Fracionados 1kg", valor_estoque:7596, sku_count:23 },
+      { area_id:"A02", nome:"Conexões e Engates Rápidos", valor_estoque:11529, sku_count:15 },
+      { area_id:"A03", nome:"Maltes Fracionados 1kg", valor_estoque:235, sku_count:19 },
+      { area_id:"A04", nome:"Freezer Lúpulos 1kg - N1", valor_estoque:1820, sku_count:29 },
+      { area_id:"A05", nome:"Freezer Lúpulos 50g - N4", valor_estoque:4898, sku_count:18 },
+      { area_id:"A06", nome:"Freezer Lúpulos 50g - N7", valor_estoque:2625, sku_count:23 },
+    ];
+
+    const mockProdutos = [
+      { nome:"União anteparo", sku:"1525", tiny_id:"", estoque_atual:45, media_venda:22, tag:"A" },
+      { nome:"Engate 3/8 x 5/8", sku:"1258", tiny_id:"", estoque_atual:45, media_venda:22, tag:"B" },
+      { nome:"Engate 3/8 x RF 1/4", sku:"882", tiny_id:"", estoque_atual:45, media_venda:22, tag:"C" },
+    ];
+
+    /*************
+     * API HELPERS
+     *************/
+    async function apiGet(path){
+      if(!API_BASE) throw new Error("API_BASE vazio (modo mock).");
+      const r = await fetch(API_BASE + path, { method:"GET" });
+      if(!r.ok) throw new Error("Erro API: " + r.status);
+      return r.json();
+    }
+
+    async function apiPost(path, body){
+      if(!API_BASE) throw new Error("API_BASE vazio (modo mock).");
+      const r = await fetch(API_BASE + path, {
+        method:"POST",
+        headers: { "Content-Type":"application/json" },
+        body: JSON.stringify(body || {})
+      });
+      if(!r.ok) throw new Error("Erro API: " + r.status);
+      return r.json();
+    }
+
+    function moneyBR(v){
+      const n = Number(v||0);
+      return n.toLocaleString("pt-BR", { style:"currency", currency:"BRL" });
+    }
+
+    /*************
+     * RENDER: ÁREAS
+     *************/
+    function renderAreas(list){
+      const wrap = document.getElementById("areaList");
+      wrap.innerHTML = "";
+
+      list.forEach(a => {
+        const el = document.createElement("div");
+        el.className = "areaCard";
+        el.innerHTML = `
+          <div class="info">
+            <div class="name">${escapeHtml(a.nome || a.area_id)}</div>
+            <div class="meta">Valor em estoque <b>${moneyBR(a.valor_estoque || 0)}</b></div>
+          </div>
+          <div class="badgeSku">
+            <div>${Number(a.sku_count || 0)}</div>
+            <small>sku</small>
+          </div>
+        `;
+        el.addEventListener("click", () => openArea(a.area_id, a.nome));
+        wrap.appendChild(el);
+      });
+    }
+
+    /*************
+     * RENDER: PRODUTOS (CONTAGEM)
+     *************/
+    function pillClass(tag){
+      const t = String(tag||"A").toUpperCase();
+      if(t==="B") return "b";
+      if(t==="C") return "c";
+      return "a";
+    }
+
+    function renderProdutos(list){
+      const wrap = document.getElementById("prodList");
+      wrap.innerHTML = "";
+
+      list.forEach(p => {
+        const el = document.createElement("div");
+        el.className = "prodCard";
+        el.innerHTML = `
+          <div class="prodTop">
+            <div style="min-width:0">
+              <div>
+                <span class="prodName">${escapeHtml(p.nome)}</span>
+                <span class="skuTxt">sku ${escapeHtml(p.sku || "-")}</span>
+              </div>
+              <div class="stats" style="margin-top:10px;">
+                <div>Estoque atual: <b>${Number(p.estoque_atual ?? 0)}</b></div>
+                <div>Média de vendas mensal: <b>${Number(p.media_venda ?? 0)}</b></div>
+              </div>
+            </div>
+            <div class="pill ${pillClass(p.tag)}">${escapeHtml(p.tag || "A")}</div>
+          </div>
+        `;
+        wrap.appendChild(el);
+      });
+    }
+
+    /*************
+     * FLOW
+     *************/
+    async function loadAreas(){
+      try{
+        if(API_BASE){
+          const data = await apiGet("/api/areas");
+          state.areas = data.areas || [];
+        }else{
+          state.areas = mockAreas;
+        }
+        renderAreas(state.areas);
+      }catch(err){
+        state.areas = mockAreas;
+        renderAreas(state.areas);
+        console.warn(err);
+      }
+    }
+
+    async function openArea(area_id, area_nome){
+      state.area_id = area_id;
+      state.area_nome = area_nome || area_id;
+      document.getElementById("areaTitle").textContent = state.area_nome;
+
+      // chip: usa primeira letra/numero
+      setAreaChip((area_id || "A").replace(/[^A-Za-z0-9]/g,"").slice(0,2).toUpperCase() || "A");
+
+      showPage("contagem");
+
+      try{
+        if(API_BASE){
+          const data = await apiGet(`/api/area/${encodeURIComponent(area_id)}/itens`);
+          state.produtos = data.itens || [];
+        }else{
+          state.produtos = mockProdutos;
+        }
+        renderProdutos(state.produtos);
+      }catch(err){
+        state.produtos = mockProdutos;
+        renderProdutos(state.produtos);
+        console.warn(err);
+      }
+    }
+
+    /*************
+     * MODAL: incluir produto
+     *************/
+    const modalBack = document.getElementById("modalBack");
+    function openModal(){ modalBack.classList.add("show"); }
+    function closeModal(){ modalBack.classList.remove("show"); }
+
+    document.getElementById("btnAdd").addEventListener("click", openModal);
+    document.getElementById("mCancelar").addEventListener("click", closeModal);
+    modalBack.addEventListener("click", (e)=>{ if(e.target === modalBack) closeModal(); });
+
+    document.getElementById("mSalvar").addEventListener("click", async ()=>{
+      const nome = document.getElementById("mNome").value.trim();
+      const sku = document.getElementById("mSku").value.trim();
+      const tiny_id = document.getElementById("mTinyId").value.trim();
+
+      if(!nome || !sku || !tiny_id){
+        alert("Preencha Nome, SKU e ID Tiny.");
+        return;
+      }
+
+      const novo = { nome, sku, tiny_id, estoque_atual: 0, media_venda: 0, tag: "A" };
+
+      try{
+        if(API_BASE){
+          await apiPost(`/api/area/${encodeURIComponent(state.area_id)}/add`, novo);
+        }
+        // Atualiza UI imediatamente (MVP)
+        state.produtos.unshift(novo);
+        renderProdutos(state.produtos);
+        closeModal();
+      }catch(err){
+        console.warn(err);
+        alert("Não foi possível salvar agora. (API ainda não configurada)");
+      }
+    });
+
+    /*************
+     * NAV / EVENTS
+     *************/
+    document.getElementById("goAreas").addEventListener("click", ()=>{
+      showPage("areas");
+      loadAreas();
+    });
+
+    document.getElementById("navHome").addEventListener("click", ()=> showPage("home"));
+    document.getElementById("navAreas").addEventListener("click", ()=>{
+      showPage("areas");
+      loadAreas();
+    });
+
+    document.getElementById("backFromAreas").addEventListener("click", ()=> showPage("home"));
+
+    document.getElementById("areaSearch").addEventListener("input", (e)=>{
+      const q = (e.target.value || "").toLowerCase();
+      const filtered = state.areas.filter(a => (a.nome || "").toLowerCase().includes(q) || (a.area_id || "").toLowerCase().includes(q));
+      renderAreas(filtered);
+    });
+
+    /*************
+     * INIT: querystring
+     *************/
+    function getParam(name){
+      const u = new URL(window.location.href);
+      return u.searchParams.get(name);
+    }
+
+    function escapeHtml(s){
+      return String(s ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    (async function init(){
+      const area = getParam("area_id");
+      if(area){
+        // se abriu via QR
+        showPage("contagem");
+        await openArea(area, area);
+      }else{
+        showPage("home");
+      }
+    })();
+  </script>
+</body>
+</html>
