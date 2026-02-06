@@ -1,6 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("[APP] DOM carregou. app.js está rodando.");
-
   /* ================= THEME ================= */
 
   const THEME_KEY = "ui.theme.v1";
@@ -32,19 +30,20 @@ document.addEventListener("DOMContentLoaded", () => {
   applyTheme(getInitialTheme());
   document.getElementById("themeToggle")?.addEventListener("click", toggleTheme);
 
-  /* ================= FONT (Títulos/Subtítulos) ================= */
+  /* ================= FONT SELECT (Títulos/Subtítulos) ================= */
 
   const FONT_KEY = "ui.font.v1";
   const fontSelect = document.getElementById("fontSelect");
 
+  function cssFontName(name) {
+    // Se tiver espaço, precisa de aspas no CSS font-family
+    return name.includes(" ") ? `"${name}"` : name;
+  }
+
   function setUIFont(fontName) {
-    // define a fonte dos títulos/subtítulos via CSS variable
-    document.documentElement.style.setProperty(
-      "--ui-font",
-      `"${fontName}", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif`
-    );
+    const cssValue = `${cssFontName(fontName)}, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif`;
+    document.documentElement.style.setProperty("--ui-font", cssValue);
     localStorage.setItem(FONT_KEY, fontName);
-    console.log("[FONT] UI font:", fontName);
   }
 
   function getSavedUIFont() {
@@ -52,11 +51,9 @@ document.addEventListener("DOMContentLoaded", () => {
     return saved || "Montserrat";
   }
 
-  // aplica fonte inicial
   const initialFont = getSavedUIFont();
   setUIFont(initialFont);
 
-  // sincroniza select
   if (fontSelect) {
     fontSelect.value = initialFont;
     fontSelect.addEventListener("change", () => setUIFont(fontSelect.value));
@@ -79,10 +76,9 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const res = await fetch("./data/engates-rapidos.json", { cache: "no-store" });
       products = await res.json();
-      console.log("[DATA] Produtos carregados:", products.length);
       render();
     } catch (e) {
-      console.error("[DATA] Erro ao carregar ./data/engates-rapidos.json", e);
+      console.error("Erro ao carregar ./data/engates-rapidos.json", e);
       if (grid) grid.innerHTML = "<p style='color:var(--muted)'>Erro ao carregar produtos.</p>";
     }
   }
