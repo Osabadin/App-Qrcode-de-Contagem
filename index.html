@@ -7,16 +7,26 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
- <header class="topbar">
-  <div class="topbar-row">
-    <div class="titleblock">
-      <h1>Contagem de Estoque</h1>
-      <p class="muted">Área: Conexões e Engates Rápidos</p>
-    </div>
-  </div>
 
-  <input id="search" class="search" placeholder="Buscar produto..." autocomplete="off" />
-</header>
+  <header class="topbar">
+    <div class="topbar-row">
+      <div class="titleblock">
+        <h1>Contagem de Estoque</h1>
+        <p class="muted">Área: Conexões e Engates Rápidos</p>
+      </div>
+
+      <button id="themeToggle" class="icon-btn" type="button" aria-label="Alternar tema">
+        ☾
+      </button>
+    </div>
+
+    <input
+      id="search"
+      class="search"
+      placeholder="Buscar produto..."
+      autocomplete="off"
+    />
+  </header>
 
   <main class="container">
     <section class="grid" id="grid"></section>
@@ -24,13 +34,14 @@
 
   <!-- Modal / Balão -->
   <div class="overlay hidden" id="overlay"></div>
+
   <div class="sheet hidden" id="sheet" role="dialog" aria-modal="true">
     <div class="sheet-header">
       <div>
         <div class="sheet-title" id="sheetTitle">Produto</div>
-        <div class="sheet-subtitle" id="sheetSubtitle">ID:</div>
+        <div class="sheet-subtitle" id="sheetSubtitle">ID</div>
       </div>
-      <button class="icon-btn" id="closeSheet" aria-label="Fechar">✕</button>
+      <button class="icon-btn" id="closeSheet">✕</button>
     </div>
 
     <div class="sheet-actions">
@@ -43,4 +54,3 @@
   <script src="app.js"></script>
 </body>
 </html>
-
