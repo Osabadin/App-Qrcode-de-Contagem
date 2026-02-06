@@ -1,8 +1,19 @@
-:root {
-    --product-font: 'Roboto', sans-serif;
+/* CSS Reset */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 body {
-    font-family: var(--product-font);
-    /* Other styles... */
+    font-family: 'Roboto', sans-serif;
+    background-color: #f4f4f4;
+}
+
+/* Add your custom styles below */
+/* Style for products with updated font */
+.product {
+    font-family: 'Roboto', sans-serif;
+    font-size: 16px;
+    color: #333;
 }
