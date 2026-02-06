@@ -26,8 +26,11 @@ body{
   backdrop-filter: blur(8px);
 }
 
-h1{margin:0; font-size:18px}
-.muted{margin:4px 0 0; color:var(--muted); font-size:12px}
+h1{
+  margin:0;
+  font-size:18px;
+  white-space: nowrap;      /* não quebra linha */
+}
 
 .search{
   width:min(380px, 45vw);
@@ -124,3 +127,4 @@ h1{margin:0; font-size:18px}
   background:#1a0e0e;
   color:#ffb3b3;
 }
+
