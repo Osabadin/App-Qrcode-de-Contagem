@@ -37,16 +37,13 @@ document.addEventListener("DOMContentLoaded", () => {
     applyTheme(next);
   }
 
-  // aplica tema inicial
   applyTheme(getInitialTheme());
 
-  // liga o botão
   const themeBtn = document.getElementById("themeToggle");
-  if (!themeBtn) {
-    console.warn("[THEME] Botão #themeToggle não encontrado.");
-  } else {
+  if (themeBtn) {
     themeBtn.addEventListener("click", toggleTheme);
-    console.log("[THEME] Listener do botão de tema ligado.");
+  } else {
+    console.warn("[THEME] Botão #themeToggle não encontrado.");
   }
 
   /* ================= APP ================= */
@@ -64,13 +61,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function loadProducts() {
     try {
-      const res = await fetch("./data/engates-rapidos.json", { cache: "no-store" });
+      const res = await fetch("./data/engates-rapidos.json", {
+        cache: "no-store",
+      });
       products = await res.json();
       console.log("[DATA] Produtos carregados:", products.length);
       render();
     } catch (e) {
-      console.error("[DATA] Erro ao carregar ./data/engates-rapidos.json", e);
-      if (grid) grid.innerHTML = "<p style='color:var(--muted)'>Erro ao carregar produtos.</p>";
+      console.error("[DATA] Erro ao carregar JSON", e);
+      if (grid) {
+        grid.innerHTML =
+          "<p style='color:var(--muted)'>Erro ao carregar produtos.</p>";
+      }
     }
   }
 
@@ -79,35 +81,38 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const q = (search?.value || "").toLowerCase().trim();
 
-    const list = products.filter(p =>
+    const list = products.filter((p) =>
       String(p?.name || "").toLowerCase().includes(q) ||
-      String(p?.id || "").includes(q) ||
       String(p?.sku || "").toLowerCase().includes(q)
     );
 
     grid.innerHTML = list
-      .map(p => `
+      .map(
+        (p) => `
         <div class="card" data-id="${p.id}">
           <div class="card-title">${escapeHtml(p.name)}</div>
           <div class="card-meta">
-            <span class="badge">ID ${p.id}</span>
+            <span class="badge">SKU ${escapeHtml(p.sku || "-")}</span>
             <span class="stock ok">0</span>
           </div>
         </div>
-      `)
+      `
+      )
       .join("");
 
-    grid.querySelectorAll(".card").forEach(card => {
-      card.addEventListener("click", () => openSheet(card.dataset.id));
+    grid.querySelectorAll(".card").forEach((card) => {
+      card.addEventListener("click", () =>
+        openSheet(card.dataset.id)
+      );
     });
   }
 
   function openSheet(id) {
-    const p = products.find(x => String(x.id) === String(id));
+    const p = products.find((x) => String(x.id) === String(id));
     if (!p || !sheet || !overlay) return;
 
-    if (sheetTitle) sheetTitle.textContent = p.name;
-    if (sheetSubtitle) sheetSubtitle.textContent = `ID ${p.id}`;
+    sheetTitle.textContent = p.name;
+    sheetSubtitle.textContent = `SKU ${p.sku || "-"}`;
 
     overlay.classList.remove("hidden");
     sheet.classList.remove("hidden");
