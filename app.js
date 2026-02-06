@@ -51,7 +51,7 @@ function applyOverrides(product) {
     ...product,
     name: ov.name ?? product.name,
     // estoque local (se existir), senão usa o do JSON (placeholder)
-    stock: (ov.stock ?? product.stock),
+    stock: Number(ov.stock ?? product.stock ?? 0),
   };
 }
 
@@ -186,3 +186,4 @@ function escapeHtml(s) {
 }
 
 loadProducts();
+
