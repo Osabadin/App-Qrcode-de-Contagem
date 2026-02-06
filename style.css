@@ -1,19 +1,243 @@
-/* CSS Reset */
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+/* ================= RESET ================= */
+
+*{ box-sizing:border-box; }
+html, body{ margin:0; padding:0; }
+
+/* ================= THEME TOKENS ================= */
+
+/* DARK (default) */
+:root{
+  --bg:#0f1115;
+  --surface:#151a21;
+  --surface-2:#10141b;
+  --text:#e9eef6;
+  --muted:#a6b1c2;
+  --border:#273244;
+
+  --primary:#2f6bff; /* azul Olist-like */
+  --ok:#22c55e;
+  --bad:#ef4444;
+
+  --shadow:0 10px 30px rgba(0,0,0,.35);
+
+  /* Fonte selecionável para títulos/subtítulos (alterada pelo app.js) */
+  --ui-font: Montserrat, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+
+  /* Fonte fixa para info de produtos */
+  --product-font: Pacifico, cursive;
 }
 
-body {
-    font-family: 'Roboto', sans-serif;
-    background-color: #f4f4f4;
+/* LIGHT */
+:root[data-theme="light"]{
+  --bg:#f6f8fc;
+  --surface:#ffffff;
+  --surface-2:#f1f4fa;
+  --text:#111827;
+  --muted:#5b6575;
+  --border:#e3e8f3;
+
+  --primary:#2f6bff;
+  --ok:#16a34a;
+  --bad:#dc2626;
+
+  --shadow:0 10px 30px rgba(17,24,39,.10);
 }
 
-/* Add your custom styles below */
-/* Style for products with updated font */
-.product {
-    font-family: 'Roboto', sans-serif;
-    font-size: 16px;
-    color: #333;
+/* ================= BASE ================= */
+
+body{
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  background:var(--bg);
+  color:var(--text);
 }
+
+/* ================= HEADER / TOPBAR ================= */
+
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:10;
+
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+
+  padding:16px;
+  border-bottom:1px solid var(--border);
+  background:rgba(21,26,33,.92);
+  backdrop-filter: blur(8px);
+}
+
+:root[data-theme="light"] .topbar{
+  background:rgba(255,255,255,.92);
+}
+
+.topbar-row{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.titleblock{ min-width:0; }
+
+/* Título/Subtítulo: azul + fonte selecionável */
+.page-title{
+  margin:0;
+  font-family:var(--ui-font);
+  font-size:32px;
+  line-height:1.05;
+  color:var(--primary);
+  white-space:nowrap;
+}
+
+.page-subtitle{
+  margin:8px 0 0;
+  font-family:var(--ui-font);
+  font-size:18px;
+  color:var(--primary);
+}
+
+/* Controles à direita */
+.controls{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+
+/* Botão (tema e fechar modal) */
+.icon-btn{
+  background:var(--surface-2);
+  border:1px solid var(--border);
+  color:var(--text);
+  border-radius:10px;
+  padding:8px 10px;
+  cursor:pointer;
+  line-height:1;
+}
+
+.icon-btn:active{ transform:translateY(1px); }
+
+/* Select fonte */
+.select-wrap{
+  display:flex;
+  align-items:center;
+  gap:8px;
+
+  background:var(--surface-2);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:6px 10px;
+}
+
+.select-label{
+  font-size:12px;
+  color:var(--muted);
+}
+
+.select{
+  background:transparent;
+  border:0;
+  outline:none;
+  color:var(--text);
+  font-size:13px;
+  cursor:pointer;
+  min-width:130px;
+}
+
+/* Busca */
+.search{
+  width:100%;
+  max-width:560px;
+  padding:12px 14px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background:var(--surface-2);
+  color:var(--text);
+  font-size:14px;
+}
+
+.search:focus{
+  outline:none;
+  border-color:var(--primary);
+  box-shadow:0 0 0 3px rgba(47,107,255,.18);
+}
+
+/* ================= LISTA / GRID ================= */
+
+.container{ padding:16px; }
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(240px, 1fr));
+  gap:12px;
+}
+
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:14px;
+
+  cursor:pointer;
+  box-shadow:var(--shadow);
+  transition:transform .12s ease, border-color .12s ease;
+}
+
+.card:hover{ transform:translateY(-1px); }
+.card:active{ transform:translateY(0); }
+
+.card-title{
+  margin:0 0 10px;
+  font-family:var(--product-font);   /* ✅ produtos sempre Pacifico */
+  font-size:18px;
+  line-height:1.25;
+}
+
+.card-meta{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+}
+
+.badge{
+  font-size:14px;
+  padding:7px 11px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:var(--surface-2);
+  color:var(--text);
+  font-family:var(--product-font);  /* ✅ SKU Pacifico */
+}
+
+.stock{
+  font-size:20px;
+  font-weight:400;
+  font-family:var(--product-font);  /* ✅ número Pacifico */
+}
+
+.stock.ok{ color:var(--ok); }
+.stock.bad{ color:var(--bad); }
+
+/* ================= MODAL / BALÃO ================= */
+
+.hidden{ display:none; }
+
+.overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.55);
+  z-index:20;
+}
+
+.sheet{
+  position:fixed;
+  left:50%;
+  bottom:16px;
+  transform:translateX(-50%);
+  width:min(560px, calc(100vw - 24px));
+
+  backg
