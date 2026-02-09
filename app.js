@@ -72,6 +72,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let products = [];
 
+  function getDisplayName(p) {
+    // Mostra apenas o nome abreviado no app
+    return p?.name_abbr || p?.abbr || p?.name_short || p?.name || "";
+  }
+
   async function loadProducts() {
     try {
       const res = await fetch("./data/engates-rapidos.json", { cache: "no-store" });
@@ -89,13 +94,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const q = (search?.value || "").toLowerCase().trim();
 
     const list = products.filter(p =>
-      String(p?.name || "").toLowerCase().includes(q) ||
+      String(getDisplayName(p)).toLowerCase().includes(q) ||
       String(p?.sku || "").toLowerCase().includes(q)
     );
 
     grid.innerHTML = list.map(p => `
       <div class="card" data-id="${p.id}">
-        <div class="card-title">${escapeHtml(p.name)}</div>
+        <div class="card-title">${escapeHtml(getDisplayName(p))}</div>
         <div class="card-meta">
           <span class="badge">SKU ${escapeHtml(p.sku || "-")}</span>
           <span class="stock ok">0</span>
@@ -112,7 +117,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const p = products.find(x => String(x.id) === String(id));
     if (!p || !sheet || !overlay) return;
 
-    sheetTitle.textContent = p.name;
+    sheetTitle.textContent = getDisplayName(p);
     sheetSubtitle.textContent = `SKU ${p.sku || "-"}`;
 
     overlay.classList.remove("hidden");
