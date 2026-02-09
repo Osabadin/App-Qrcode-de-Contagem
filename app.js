@@ -1,11 +1,11 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // ⚠️ COLE AQUI O URL QUE VOCÊ COPIOU DO GOOGLE APPS SCRIPT
+  // Substitua pela sua URL de implantação do Google
   const API_URL = "https://script.google.com/macros/s/AKfycbxH4Lx4k9Rck16hjPIn8brZz6SQy9vu6DmglabfT7divFYcpFM6-tuxkI2XjwbxbnvdVw/exec";
 
-  /* ================= CONFIGURAÇÕES BÁSICAS ================= */
   const THEME_KEY = "ui.theme.v1";
   const FONT_KEY = "ui.font.v1";
 
+  /* ================= CONFIGS ================= */
   function applyTheme(theme) {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem(THEME_KEY, theme);
@@ -42,10 +42,11 @@ document.addEventListener("DOMContentLoaded", () => {
     grid.innerHTML = "<p style='color:var(--muted)'>Sincronizando com Google Sheets...</p>";
     try {
       const res = await fetch(API_URL);
-      products = await res.json();
+      const data = await res.json();
+      products = data.sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
       render();
     } catch (e) {
-      grid.innerHTML = "<p>Erro ao conectar com a planilha.</p>";
+      grid.innerHTML = "<p>Erro ao conectar com a planilha. Verifique a nova implantação.</p>";
     }
   }
 
@@ -75,7 +76,19 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  /* ================= ADICIONAR NA PLANILHA ================= */
+  async function sendToGoogle(payload) {
+    try {
+      await fetch(API_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+    } catch (e) {
+      console.error("Erro de sincronização:", e);
+    }
+  }
+
   addProductBtn?.addEventListener("click", async () => {
     const name = prompt("Abreviação do novo produto:");
     if (!name) return;
@@ -89,21 +102,9 @@ document.addEventListener("DOMContentLoaded", () => {
       sku: sku
     };
 
-    // Feedback visual imediato
     products.push(newProd);
     render();
-
-    // Envia para o Google Sheets
-    try {
-      await fetch(API_URL, {
-        method: "POST",
-        mode: "no-cors", // Necessário para Google Apps Script
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newProd)
-      });
-    } catch (e) {
-      alert("Erro ao salvar na planilha, mas o item aparecerá até você atualizar a página.");
-    }
+    await sendToGoogle(newProd);
   });
 
   /* ================= DRAG & DROP ================= */
@@ -111,9 +112,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const cards = grid.querySelectorAll(".card");
     cards.forEach(card => {
       card.addEventListener("dragstart", () => setTimeout(() => card.classList.add("dragging"), 0));
-      card.addEventListener("dragend", () => card.classList.remove("dragging"));
+      card.addEventListener("dragend", () => {
+        card.classList.remove("dragging");
+        saveOrderGlobal();
+      });
       card.addEventListener("touchstart", () => card.classList.add("dragging"), {passive:true});
-      card.addEventListener("touchend", () => card.classList.remove("dragging"));
+      card.addEventListener("touchend", () => {
+        card.classList.remove("dragging");
+        saveOrderGlobal();
+      });
     });
 
     const move = (e, y) => {
@@ -137,6 +144,12 @@ document.addEventListener("DOMContentLoaded", () => {
       if (offset < 0 && offset > closest.offset) return { offset: offset, element: child };
       return closest;
     }, { offset: Number.NEGATIVE_INFINITY }).element;
+  }
+
+  async function saveOrderGlobal() {
+    const idList = [...grid.querySelectorAll(".card")].map(c => String(c.dataset.id));
+    products.sort((a, b) => idList.indexOf(String(a.id)) - idList.indexOf(String(b.id)));
+    await sendToGoogle({ action: "reorder", idList: idList });
   }
 
   /* ================= UI ================= */
