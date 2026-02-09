@@ -1,11 +1,11 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // Substitua pela sua URL de implantação do Google
+  // ⚠️ USE A URL GERADA NA SUA ÚLTIMA IMPLANTAÇÃO
   const API_URL = "https://script.google.com/macros/s/AKfycbxH4Lx4k9Rck16hjPIn8brZz6SQy9vu6DmglabfT7divFYcpFM6-tuxkI2XjwbxbnvdVw/exec";
 
   const THEME_KEY = "ui.theme.v1";
   const FONT_KEY = "ui.font.v1";
 
-  /* ================= CONFIGS ================= */
+  /* ================= CONFIGURAÇÕES ================= */
   function applyTheme(theme) {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem(THEME_KEY, theme);
@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
     fontSelect.addEventListener("change", () => setUIFont(fontSelect.value));
   }
 
-  /* ================= APP CORE ================= */
+  /* ================= CORE ================= */
   const grid = document.getElementById("grid");
   const search = document.getElementById("search");
   const addProductBtn = document.getElementById("addProductBtn");
@@ -39,14 +39,22 @@ document.addEventListener("DOMContentLoaded", () => {
   let products = [];
 
   async function loadProducts() {
+    if (!grid) return;
     grid.innerHTML = "<p style='color:var(--muted)'>Sincronizando com Google Sheets...</p>";
+    
     try {
-      const res = await fetch(API_URL);
+      const res = await fetch(API_URL, {
+        method: 'GET',
+        redirect: 'follow'
+      });
+      if (!res.ok) throw new Error("Erro na rede");
+      
       const data = await res.json();
       products = data.sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
       render();
     } catch (e) {
-      grid.innerHTML = "<p>Erro ao conectar com a planilha. Verifique a nova implantação.</p>";
+      console.error("Erro:", e);
+      grid.innerHTML = "<p style='color:var(--bad)'>Erro ao carregar dados. Verifique a implantação do Script.</p>";
     }
   }
 
@@ -85,7 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify(payload)
       });
     } catch (e) {
-      console.error("Erro de sincronização:", e);
+      console.error("Erro ao sincronizar:", e);
     }
   }
 
@@ -152,7 +160,7 @@ document.addEventListener("DOMContentLoaded", () => {
     await sendToGoogle({ action: "reorder", idList: idList });
   }
 
-  /* ================= UI ================= */
+  /* ================= UI ACTIONS ================= */
   function openSheet(id) {
     const p = products.find(x => String(x.id) === String(id));
     if (!p) return;
