@@ -23,25 +23,27 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function toggleTheme() {
-    const current = document.documentElement.getAttribute("data-theme") || "dark";
+    const current =
+      document.documentElement.getAttribute("data-theme") || "dark";
     applyTheme(current === "dark" ? "light" : "dark");
   }
 
   applyTheme(getInitialTheme());
   document.getElementById("themeToggle")?.addEventListener("click", toggleTheme);
 
-  /* ================= FONT SELECT (Títulos/Subtítulos) ================= */
+  /* ================= FONT SELECT ================= */
 
   const FONT_KEY = "ui.font.v1";
   const fontSelect = document.getElementById("fontSelect");
 
   function cssFontName(name) {
-    // Se tiver espaço, precisa de aspas no CSS font-family
     return name.includes(" ") ? `"${name}"` : name;
   }
 
   function setUIFont(fontName) {
-    const cssValue = `${cssFontName(fontName)}, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif`;
+    const cssValue = `${cssFontName(
+      fontName
+    )}, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif`;
     document.documentElement.style.setProperty("--ui-font", cssValue);
     localStorage.setItem(FONT_KEY, fontName);
   }
@@ -56,7 +58,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (fontSelect) {
     fontSelect.value = initialFont;
-    fontSelect.addEventListener("change", () => setUIFont(fontSelect.value));
+    fontSelect.addEventListener("change", () =>
+      setUIFont(fontSelect.value)
+    );
   }
 
   /* ================= APP ================= */
@@ -72,19 +76,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let products = [];
 
-  function getDisplayName(p) {
-    // Mostra apenas o nome abreviado no app
-    return p?.name_abbr || p?.abbr || p?.name_short || p?.name || "";
-  }
-
   async function loadProducts() {
     try {
-      const res = await fetch("./data/engates-rapidos.json", { cache: "no-store" });
+      const res = await fetch("./data/engates-rapidos.json", {
+        cache: "no-store",
+      });
       products = await res.json();
       render();
     } catch (e) {
-      console.error("Erro ao carregar ./data/engates-rapidos.json", e);
-      if (grid) grid.innerHTML = "<p style='color:var(--muted)'>Erro ao carregar produtos.</p>";
+      console.error(
+        "Erro ao carregar ./data/engates-rapidos.json",
+        e
+      );
+      if (grid)
+        grid.innerHTML =
+          "<p style='color:var(--muted)'>Erro ao carregar produtos.</p>";
     }
   }
 
@@ -93,31 +99,49 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const q = (search?.value || "").toLowerCase().trim();
 
-    const list = products.filter(p =>
-      String(getDisplayName(p)).toLowerCase().includes(q) ||
-      String(p?.sku || "").toLowerCase().includes(q)
+    const list = products.filter((p) =>
+      String(p?.name_abbr || "")
+        .toLowerCase()
+        .includes(q) ||
+      String(p?.name_official || p?.name || "")
+        .toLowerCase()
+        .includes(q) ||
+      String(p?.sku || "")
+        .toLowerCase()
+        .includes(q)
     );
 
-    grid.innerHTML = list.map(p => `
+    grid.innerHTML = list
+      .map(
+        (p) => `
       <div class="card" data-id="${p.id}">
-        <div class="card-title">${escapeHtml(getDisplayName(p))}</div>
+        <div class="card-title">
+          ${escapeHtml(p.name_abbr || p.name || p.name_official)}
+        </div>
         <div class="card-meta">
           <span class="badge">SKU ${escapeHtml(p.sku || "-")}</span>
           <span class="stock ok">0</span>
         </div>
       </div>
-    `).join("");
+    `
+      )
+      .join("");
 
-    grid.querySelectorAll(".card").forEach(card => {
-      card.addEventListener("click", () => openSheet(card.dataset.id));
+    grid.querySelectorAll(".card").forEach((card) => {
+      card.addEventListener("click", () =>
+        openSheet(card.dataset.id)
+      );
     });
   }
 
   function openSheet(id) {
-    const p = products.find(x => String(x.id) === String(id));
+    const p = products.find(
+      (x) => String(x.id) === String(id)
+    );
     if (!p || !sheet || !overlay) return;
 
-    sheetTitle.textContent = getDisplayName(p);
+    sheetTitle.textContent =
+      p.name_abbr || p.name || p.name_official;
     sheetSubtitle.textContent = `SKU ${p.sku || "-"}`;
 
     overlay.classList.remove("hidden");
