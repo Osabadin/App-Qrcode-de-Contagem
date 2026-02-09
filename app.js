@@ -78,6 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function loadProducts() {
     try {
+      // Forçando a limpeza de cache no fetch para garantir que pegue o JSON novo
       const res = await fetch("./data/engates-rapidos.json", {
         cache: "no-store",
       });
@@ -116,7 +117,7 @@ document.addEventListener("DOMContentLoaded", () => {
         (p) => `
       <div class="card" data-id="${p.id}">
         <div class="card-title">
-          ${escapeHtml(p.name_abbr || p.name || p.name_official)}
+          ${escapeHtml(p.name_abbr || p.name_official || p.name || "Sem nome")}
         </div>
         <div class="card-meta">
           <span class="badge">SKU ${escapeHtml(p.sku || "-")}</span>
@@ -140,8 +141,8 @@ document.addEventListener("DOMContentLoaded", () => {
     );
     if (!p || !sheet || !overlay) return;
 
-    sheetTitle.textContent =
-      p.name_abbr || p.name || p.name_official;
+    // Prioriza a abreviação no título do modal
+    sheetTitle.textContent = p.name_abbr || p.name_official || p.name;
     sheetSubtitle.textContent = `SKU ${p.sku || "-"}`;
 
     overlay.classList.remove("hidden");
