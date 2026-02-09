@@ -283,3 +283,20 @@ body{
     justify-content:space-between;
   }
 }
+
+
+
+
+/* Feedback visual para o arraste */
+.card.dragging {
+  opacity: 0.5;
+  transform: scale(1.02);
+  border: 2px dashed var(--primary);
+  z-index: 100;
+}
+
+/* Cursor de movimento para indicar que é arrastável */
+.card {
+  touch-action: none; /* Importante para não conflitar com o scroll do navegador */
+  user-select: none;
+}
